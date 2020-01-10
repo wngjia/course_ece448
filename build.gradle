@@ -5,6 +5,7 @@ plugins {
 	id 'jacoco'
 	id 'org.springframework.boot' version '1.5.22.RELEASE'
 	id 'io.spring.dependency-management' version "1.0.8.RELEASE"
+	id "com.github.johnrengelman.shadow" version "4.0.4"
 }
 
 defaultTasks 'clean', 'test', 'jacocoTestReport'
@@ -15,6 +16,7 @@ version = '1.0.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 buildDir = 'build'
+libsDirName='../'
 
 repositories {
 	jcenter()
@@ -50,4 +52,10 @@ sourceSets {
 
 jacoco {
 	toolVersion = '0.8.5'
+}
+
+shadowJar {
+	classifier = "fat"
+	baseName = "ece448"
+	from(project.sourceSets.main.output)
 }
