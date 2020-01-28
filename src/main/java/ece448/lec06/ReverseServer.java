@@ -17,10 +17,13 @@ public class ReverseServer implements AutoCloseable {
     public void run() throws Exception {
         logger.info("server: port {}", server.getLocalPort());
         for (;;) {
+            // wait for client to connect
             Socket client = server.accept();
-            logger.info("client: address {}",
-                client.getRemoteSocketAddress());
-            client.close();
+            logger.info("client {}: connected", client.getRemoteSocketAddress());
+            // start a thread to process client request
+            Thread t = new Thread(new ReverseProcessor(client));
+            t.setDaemon(true);
+            t.start();
         }
     }
 
