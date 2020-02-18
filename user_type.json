@@ -1,0 +1,1 @@
+{"httpPort":8080,"plugNames":["a","b.100","cc","dddd"],"mqttBroker":"tcp://127.0.0.1","mqttClientId":"iot_sim","extra":"This is an extra property."}
