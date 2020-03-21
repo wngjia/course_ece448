@@ -1,0 +1,50 @@
+<html>
+
+<head>
+	<title>Dice Throwing</title>
+</head>
+
+<body>
+
+<div id="dice">
+	Click the button to start.
+</div>
+<div>
+	<button onclick="throw_dice()">Throw</button>
+	<input type="number" id="num_dices" min="1"/>
+	dices.
+</div>
+</h1>
+
+<script>
+function throw_dice()
+{
+	// find how many dices we need to throw
+	var n = document.getElementById('num_dices').value;
+	console.info("Throwing "+n+" dices ...");
+
+	var dices = [];
+	var sum = 0;
+	for (var i = 0; i < n; ++i)
+	{
+		// throw a dice by generating a random number between 1 and 6
+		var r = Math.floor(Math.random()*6)+1;
+		dices.push(r);
+		sum += r;
+	}
+	console.info("Got", dices);
+
+	// locate the HTML element
+	var elem = document.getElementById("dice");
+	
+	// update the "dice" element
+	if (n == 1)
+		elem.innerHTML = "You got "+dices[0]+".";
+	else
+		elem.innerHTML = "You got "+dices+" with a total of "+sum+".";
+}
+</script>
+
+</body>
+
+</html>

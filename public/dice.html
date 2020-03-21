@@ -1,0 +1,32 @@
+<html>
+
+<head>
+	<title>Dice Throwing</title>
+</head>
+
+<body>
+
+<div id="dice">
+	Click the button to start.
+</div>
+<div>
+	<button onclick="throw_dice()">Throw a dice</button>
+</div>
+
+<script>
+function throw_dice()
+{
+	// throw a dice by generating a random number between 1 and 6
+	var r = Math.floor(Math.random()*6)+1;
+
+	// locate the HTML element
+	var elem = document.getElementById("dice");
+	
+	// update the "dice" element
+	elem.innerHTML = "You got "+r+".";
+}
+</script>
+
+</body>
+
+</html>
