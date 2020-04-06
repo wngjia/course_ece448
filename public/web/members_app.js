@@ -6,9 +6,11 @@ class MembersApp extends React.Component {
 
 	constructor(props) {
 		super(props);
+		console.info("MembersApp constructor()");
 	}
 
 	render() {
+		console.info("MembersApp render()");
 		return (
 		<div className="container">
 			<div className="row">

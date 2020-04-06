@@ -71,6 +71,7 @@ function Body(props) {
  * This is a stateless view showing the whole members table.
  */
 function MembersTable(props) {
+	console.info("MembersTable()")	
 	if (props.members.get_group_names().length == 0)
 		return (<div>There are no groups.</div>);
 
