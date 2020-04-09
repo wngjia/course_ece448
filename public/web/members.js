@@ -41,29 +41,32 @@ class Members extends React.Component {
 		super(props);
 		console.info("Members constructor()");
 		this.state = {
-			members: create_members_model([
-				{name: "A", members: ["a", "b", "c"]},
-				{name: "B", members: ["c", "d", "e"]},
-				{name: "C", members: ["a", "c", "e"]}
-			]),
+			members: create_members_model([]),
+			inputName: "",
+			inputMembers: "",
 		};
 	}
 
 	componentDidMount() {
 		console.info("Members componentDidMount()");
 		this.getGroups();
-		// setTimeout(this.getGroups, 10000);
+		//setInterval(this.getGroups, 1000);
 	}
 
 	render() {
-		console.info("Members render()");
+		//console.info("Members render()");
 		return (<MembersTable members={this.state.members}
+			inputName={this.state.inputName} inputMembers={this.state.inputMembers}
 			onMemberChange={this.onMemberChange}
-			onDeleteGroup={this.onDeleteGroup} />);
+			onDeleteGroup={this.onDeleteGroup}
+			onInputNameChange={this.onInputNameChange}
+			onInputMembersChange={this.onInputMembersChange}
+			onAddGroup={this.onAddGroup}
+			onAddMemberToAllGroups={this.onAddMemberToAllGroups} />);
 	}
 
 	getGroups = () => {
-		console.info("RESTful: get groups");
+		console.debug("RESTful: get groups");
 		fetch("api/groups")
 			.then(rsp => rsp.json())
 			.then(groups => this.showGroups(groups))
@@ -90,6 +93,22 @@ class Members extends React.Component {
 			.catch(err => console.error("Members: createGroup", err));
 	}
 
+	createManyGroups = groups => {
+		console.info("RESTful: create many groups "+JSON.stringify(groups));
+		var pendingReqs = groups.map(group => {
+			var postReq = {
+				method: "POST",
+				headers: {"Content-Type": "application/json"},
+				body: JSON.stringify(group.members)
+			};
+			return fetch("api/groups/"+group.name, postReq);
+		});
+
+		Promise.all(pendingReqs)
+			.then(() => this.getGroups())
+			.catch(err => console.error("Members: createManyGroup", err));
+	}
+
 	deleteGroup = groupName => {
 		console.info("RESTful: delete group "+groupName);
 	
@@ -99,7 +118,7 @@ class Members extends React.Component {
 		fetch("api/groups/"+groupName, delReq)
 			.then(rsp => this.getGroups())
 			.catch(err => console.error("Members: deleteGroup", err));
-	}	
+	}
 
 	onMemberChange = (memberName, groupName) => {
 		var groupMembers = new Set(this.state.members.get_group_members(groupName));
@@ -113,6 +132,33 @@ class Members extends React.Component {
 
 	onDeleteGroup = groupName => {
 		this.deleteGroup(groupName);
+	}
+
+	onInputNameChange = value => {
+		console.debug("Members: onInputNameChange", value);
+		this.setState({inputName: value});
+	}
+
+	onInputMembersChange = value => {
+		console.debug("Members: onInputMembersChange", value);
+		this.setState({inputMembers: value});
+	}
+
+	onAddGroup = () => {
+		var name = this.state.inputName;
+		var members = this.state.inputMembers.split(',');
+	
+		this.createGroup(name, members);
+	}
+
+	onAddMemberToAllGroups = memberName => {
+		var groups = [];
+		for (var groupName of this.state.members.get_group_names()) {
+			var groupMembers = new Set(this.state.members.get_group_members(groupName));
+			groupMembers.add(memberName);
+			groups.push({name: groupName, members: Array.from(groupMembers)});
+		}
+		this.createManyGroups(groups);
 	}
 }
 
