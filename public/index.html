@@ -48,11 +48,26 @@ function show_groups(groups) {
 
 	var html = "";
 	for (var group of groups) {
-		html += "<div>"+group.name+": ["+group.members+"]</div>";
+		var item = group.name+": ["+group.members+"]";
+		// <button onclick='delete_group("A")'>Delete A</button>
+		var button = "<button onclick='delete_group(\""+group.name+"\")'>Delete "
+			+group.name+"</button>";
+		html += "<div>"+item+button+"</div>";
 	}
 
 	document.getElementById("groups").innerHTML = (groups.length == 0)?
 		"There is no group.": html;
+}
+
+function delete_group(group) {
+	console.info("Groups: delete "+group);
+
+	var del_req = {
+		method: "DELETE"
+	};
+	fetch("api/groups/"+group, del_req)
+		.then(rsp => get_groups())
+		.catch(err => console.error("Groups:", err));
 }
 
 // request to get all groups when page is loading
