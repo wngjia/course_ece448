@@ -9,6 +9,8 @@ import java.net.SocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ece448.lec05.ReverseString;
+
 class ReverseProcessor implements Runnable {
 
     private final Socket client;
@@ -32,7 +34,7 @@ class ReverseProcessor implements Runnable {
 
     private void process() throws Exception {
         InputStream in = client.getInputStream();
-        // OutputStream out = client.getOutputStream();
+        OutputStream out = client.getOutputStream();
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         for (;;) {
             // one byte at a time
@@ -56,7 +58,11 @@ class ReverseProcessor implements Runnable {
             if (message.equals(""))
                 break;
             logger.info("client {}: message {}", address, message);
-
+            // send reversed message back
+            byte[] reversed = ReverseString.reverse(message).getBytes("UTF-8");
+            out.write(reversed);
+            // also send an enter to make telnet output better
+            out.write("\r\n".getBytes("UTF-8"));
             // reset buf for new message
             buf.reset();
         }
