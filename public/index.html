@@ -1,11 +1,65 @@
 <html>
 
 <head>
-	<title>My Spring App</title>
+	<title>My Spring App with Groups</title>
 </head>
 
 <body>
-	<p>My Spring App has a web page.</p>
+
+<div id="groups">
+	Loading groups ...
+</div>
+
+<div>
+	<label>Group Name</label>
+	<input type="text" id="group_name"/>
+	<label>Members</label>
+	<input type="text" size=60 id="group_members" placeholder="e.g. a,b,c"/>
+	<button onclick="create_group()">Add/Replace</button>
+</div>
+
+<script>
+function create_group() {
+	var name = document.getElementById('group_name').value;
+	var members = document.getElementById('group_members').value.split(',');
+	console.info("Groups: add "+name+" with members "+members);
+
+	var post_req = {
+		method: "POST",
+		headers: {"Content-Type": "application/json"},
+		body: JSON.stringify(members)
+	};
+	fetch("api/groups/"+name, post_req)
+		.then(rsp => get_groups())
+		.catch(err => console.error("Groups:", err));
+}
+
+// send RESTful request to get all groups
+function get_groups() {
+	fetch("api/groups")
+		.then(rsp => rsp.json())
+		.then(groups => show_groups(groups))
+		.catch(err => console.error("Groups:", err));
+}
+
+// handle RESTful response of getting all groups
+function show_groups(groups) {
+	groups.sort((l, r) => l.name.localeCompare(r.name));
+
+	var html = "";
+	for (var group of groups) {
+		html += "<div>"+group.name+": ["+group.members+"]</div>";
+	}
+
+	document.getElementById("groups").innerHTML = (groups.length == 0)?
+		"There is no group.": html;
+}
+
+// request to get all groups when page is loading
+get_groups();
+
+</script>
+
 </body>
 
 </html>
