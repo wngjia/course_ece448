@@ -23,6 +23,7 @@ function create_members_model(groups) {
 	that.is_member_in_group = (member_name, group_name) =>
 		!group_members.has(group_name)? false:
 			group_members.get(group_name).has(member_name);
+	that.get_group_members = group_name => group_members.get(group_name);
 
 	console.debug("Members Model",
 		groups, group_names, member_names, group_members);
@@ -38,7 +39,7 @@ class Members extends React.Component {
 
 	constructor(props) {
 		super(props);
-		console.info("Members constructor()")
+		console.info("Members constructor()");
 		this.state = {
 			members: create_members_model([
 				{name: "A", members: ["a", "b", "c"]},
@@ -49,17 +50,20 @@ class Members extends React.Component {
 	}
 
 	componentDidMount() {
-		console.info("Members componentDidMount()")
+		console.info("Members componentDidMount()");
 		this.getGroups();
 		// setTimeout(this.getGroups, 10000);
 	}
 
 	render() {
-		console.info("Members render()")
-		return (<MembersTable members={this.state.members} />);
+		console.info("Members render()");
+		return (<MembersTable members={this.state.members}
+			onMemberChange={this.onMemberChange}
+			onDeleteGroup={this.onDeleteGroup} />);
 	}
 
 	getGroups = () => {
+		console.info("RESTful: get groups");
 		fetch("api/groups")
 			.then(rsp => rsp.json())
 			.then(groups => this.showGroups(groups))
@@ -70,6 +74,45 @@ class Members extends React.Component {
 		this.setState({
 			members: create_members_model(groups)
 		});
+	}
+
+	createGroup = (groupName, groupMembers) => {
+		console.info("RESTful: create group "+groupName
+			+" "+JSON.stringify(groupMembers));
+		
+		var postReq = {
+			method: "POST",
+			headers: {"Content-Type": "application/json"},
+			body: JSON.stringify(groupMembers)
+		};
+		fetch("api/groups/"+groupName, postReq)
+			.then(rsp => this.getGroups())
+			.catch(err => console.error("Members: createGroup", err));
+	}
+
+	deleteGroup = groupName => {
+		console.info("RESTful: delete group "+groupName);
+	
+		var delReq = {
+			method: "DELETE"
+		};
+		fetch("api/groups/"+groupName, delReq)
+			.then(rsp => this.getGroups())
+			.catch(err => console.error("Members: deleteGroup", err));
+	}	
+
+	onMemberChange = (memberName, groupName) => {
+		var groupMembers = new Set(this.state.members.get_group_members(groupName));
+		if (groupMembers.has(memberName))
+			groupMembers.delete(memberName);
+		else
+			groupMembers.add(memberName);
+
+		this.createGroup(groupName, Array.from(groupMembers));
+	}
+
+	onDeleteGroup = groupName => {
+		this.deleteGroup(groupName);
 	}
 }
 
