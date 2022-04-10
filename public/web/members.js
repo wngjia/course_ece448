@@ -38,6 +38,7 @@ class Members extends React.Component {
 
 	constructor(props) {
 		super(props);
+		console.info("Members constructor()")
 		this.state = {
 			members: create_members_model([
 				{name: "A", members: ["a", "b", "c"]},
@@ -47,8 +48,28 @@ class Members extends React.Component {
 		};
 	}
 
+	componentDidMount() {
+		console.info("Members componentDidMount()")
+		this.getGroups();
+		// setTimeout(this.getGroups, 10000);
+	}
+
 	render() {
+		console.info("Members render()")
 		return (<MembersTable members={this.state.members} />);
+	}
+
+	getGroups = () => {
+		fetch("api/groups")
+			.then(rsp => rsp.json())
+			.then(groups => this.showGroups(groups))
+			.catch(err => console.error("Members: getGroups", err));
+	}
+
+	showGroups = groups => {
+		this.setState({
+			members: create_members_model(groups)
+		});
 	}
 }
 
